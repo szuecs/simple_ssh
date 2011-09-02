@@ -28,7 +28,7 @@ If your answers for these questions are yes then simple_ssh is for you.
 
 * Configuration by dictionary or block or both
 
-    ssh = SimpleSsh::SimpleSSH.configure(:cmds => ["ls -l / | wc", "hostname"], :user => "root") do |cfg|
+    ssh = SimpleSsh::SimpleSSH.configure(:cmds => ["hostname"], :user => "root") do |cfg|
       cfg.hosts << "192.168.143.153"
       cfg.cmds  << "whoami"
       cfg.keys  << "~/.ssh/id_rsa"
@@ -49,7 +49,7 @@ If your answers for these questions are yes then simple_ssh is for you.
 ==== Using results
 * Get results by hosts dictionary
 
-    ssh.result_by_host["192.168.143.153"] #=> {"ls -l / | wc"=>"     23     206    1151", "hostname"=>"foreman-squeeze", "whoami"=>"root"}
+    ssh.result_by_host["192.168.143.153"] #=> {"hostname"=>"foreman-squeeze", "whoami"=>"root"}
 
 * Get results by cmd dictionary
 
@@ -57,11 +57,11 @@ If your answers for these questions are yes then simple_ssh is for you.
 
 * Dump yaml 
 
-    ssh.to_yaml #=> "--- \n192.168.143.153: \n  ls -l / | wc: \"     23     206    1151\"\n  hostname: foreman-squeeze\n  whoami: root\n"
+    ssh.to_yaml #=> "--- \n192.168.143.153: \n  hostname: foreman-squeeze\n  whoami: root\n"
 
 * Dump csv
 
-    ssh.to_csv(";") #=> "host;cmd;result\n192.168.143.153;ls -l / | wc;     23     206    1151\n192.168.143.153;hostname;foreman-squeeze\n192.168.143.153;whoami;root"
+    ssh.to_csv(";") #=> "host;cmd;result\n192.168.143.153;hostname;foreman-squeeze\n192.168.143.153;whoami;root"
 
 == REQUIREMENTS
 
