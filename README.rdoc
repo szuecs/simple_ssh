@@ -1,0 +1,75 @@
+== DESCRIPTION
+SimpleSsh is a simple wrapper around the net-ssh gem.
+
+=== Examples
+* Simple configuration of command list execution by hosts using a block. 
+
+    ssh = SimpleSsh::SimpleSSH.configure do |cfg|
+      cfg.user = "root"
+      cfg.hosts << "192.168.143.153"
+      cfg.cmds  << "whoami"
+      cfg.cmds  << "id"
+      cfg.keys  << "~/.ssh/id_rsa"
+    end
+    ssh.execute #=> {"192.168.143.153"=>{"whoami"=>"root", "id"=>"uid=0(root) gid=0(root) groups=0(root)"}}
+    puts ssh
+    #192.168.143.153:
+    #        whoami: root
+    #        id: uid=0(root) gid=0(root) groups=0(root)
+
+* Configuration by dictionary and block
+
+    ssh = SimpleSsh::SimpleSSH.configure(:cmds => ["ls -l / | wc", "hostname"], :user => "root") do |cfg|
+      cfg.hosts << "192.168.143.153"
+      cfg.cmds  << "whoami"
+      cfg.keys  << "~/.ssh/id_rsa"
+    end
+    
+* Command execution
+  * Execute the configured hosts and commands
+  
+      ssh.execute
+    
+  * Execute a block
+  
+      ssh.execute do |ch|
+        ch.cmds << "echo yeaha"
+        ch.cmds << "echo yeaha | openssl dgst -sha1"
+      end
+    
+* Using results
+  * Get results by hosts dictionary
+  
+      ssh.result_by_host["192.168.143.153"] #=> 
+    
+  * Get results by cmd dictionary
+  
+      ssh.result_by_cmd["whoami"] #=> 
+    
+  * Dump yaml 
+  
+      ssh.to_yaml
+    
+  * Dump csv
+  
+      ssh.to_csv(";")
+
+== REQUIREMENTS
+
+* net-ssh
+
+== INSTALL
+
+% sudo gem install simple_ssh
+
+== TODO
+
+== Bug reports
+
+== AUTHORS
+
+Sandor Szücs, sandor.szuecs@fu-berlin.de
+  
+== LICENSE
+
+See LICENSE file.

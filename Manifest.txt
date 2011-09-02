@@ -1,0 +1,6 @@
+CHANGELOG.rdoc
+LICENSE
+Manifest.txt
+README.rdoc
+Rakefile
+lib/simple_ssh.rb
