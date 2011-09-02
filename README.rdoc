@@ -1,7 +1,14 @@
+= SimpleSSH
 == DESCRIPTION
-SimpleSsh is a simple wrapper around the net-ssh gem.
+simple_ssh is a simple wrapper around the net-ssh gem.
+
+* You want to execute a list of commands on a list of hosts using ssh?
+* You want to analyze the results within a script?
+
+If your answers for these questions are yes then simple_ssh is for you.
 
 === Examples
+==== Configuration
 * Simple configuration of command list execution by hosts using a block. 
 
     ssh = SimpleSsh::SimpleSSH.configure do |cfg|
@@ -17,7 +24,7 @@ SimpleSsh is a simple wrapper around the net-ssh gem.
     #        whoami: root
     #        id: uid=0(root) gid=0(root) groups=0(root)
 
-* Configuration by dictionary and block
+* Configuration by dictionary or block or both
 
     ssh = SimpleSsh::SimpleSSH.configure(:cmds => ["ls -l / | wc", "hostname"], :user => "root") do |cfg|
       cfg.hosts << "192.168.143.153"
@@ -25,34 +32,34 @@ SimpleSsh is a simple wrapper around the net-ssh gem.
       cfg.keys  << "~/.ssh/id_rsa"
     end
     
-* Command execution
-  * Execute the configured hosts and commands
+==== Command execution
+* Execute the configured hosts and commands
+
+    ssh.execute
+
+* Execute a block
   
-      ssh.execute
+    ssh.execute do |ch|
+      ch.cmds << "echo yeaha"
+      ch.cmds << "echo yeaha | openssl dgst -sha1"
+    end
     
-  * Execute a block
-  
-      ssh.execute do |ch|
-        ch.cmds << "echo yeaha"
-        ch.cmds << "echo yeaha | openssl dgst -sha1"
-      end
-    
-* Using results
-  * Get results by hosts dictionary
-  
-      ssh.result_by_host["192.168.143.153"] #=> 
-    
-  * Get results by cmd dictionary
-  
-      ssh.result_by_cmd["whoami"] #=> 
-    
-  * Dump yaml 
-  
-      ssh.to_yaml
-    
-  * Dump csv
-  
-      ssh.to_csv(";")
+==== Using results
+* Get results by hosts dictionary
+
+    ssh.result_by_host["192.168.143.153"] #=> {"ls -l / | wc"=>"     23     206    1151", "hostname"=>"foreman-squeeze", "whoami"=>"root"}
+
+* Get results by cmd dictionary
+
+    ssh.result_by_cmd["whoami"] #=> {"192.168.143.153"=>"root"}
+
+* Dump yaml 
+
+    ssh.to_yaml #=> "--- \n192.168.143.153: \n  ls -l / | wc: \"     23     206    1151\"\n  hostname: foreman-squeeze\n  whoami: root\n"
+
+* Dump csv
+
+    ssh.to_csv(";") #=> "host;cmd;result\n192.168.143.153;ls -l / | wc;     23     206    1151\n192.168.143.153;hostname;foreman-squeeze\n192.168.143.153;whoami;root"
 
 == REQUIREMENTS
 
@@ -61,10 +68,6 @@ SimpleSsh is a simple wrapper around the net-ssh gem.
 == INSTALL
 
 % sudo gem install simple_ssh
-
-== TODO
-
-== Bug reports
 
 == AUTHORS
 
