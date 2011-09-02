@@ -1,4 +1,6 @@
 = SimpleSSH
+home :: https://github.com/szuecs/simple_ssh
+
 == DESCRIPTION
 simple_ssh is a simple wrapper around the net-ssh gem.
 
