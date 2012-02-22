@@ -96,7 +96,6 @@ module SimpleSsh
 
     def execute_cmds_on(user, host)
       result = {}
-      except=nil
       begin
         Net::SSH.start( host, user, :keys => @keys) do |ssh|
           @cmds.each do |cmd|
