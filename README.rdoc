@@ -11,7 +11,7 @@ If your answers for these questions are yes then simple_ssh is for you.
 
 === Examples
 ==== Configuration
-* Simple configuration of command list execution by hosts using a block. 
+* Simple configuration of command list execution by hosts using a block.
 
     ssh = SimpleSsh::SimpleSSH.configure do |cfg|
       cfg.user = "root"
@@ -33,19 +33,19 @@ If your answers for these questions are yes then simple_ssh is for you.
       cfg.cmds  << "whoami"
       cfg.keys  << "~/.ssh/id_rsa"
     end
-    
+
 ==== Command execution
 * Execute the configured hosts and commands
 
     ssh.execute
 
 * Execute a block
-  
+
     ssh.execute do |ch|
       ch.cmds << "echo yeaha"
       ch.cmds << "echo yeaha | openssl dgst -sha1"
     end
-    
+
 ==== Using results
 * Get results by hosts dictionary
 
@@ -55,7 +55,7 @@ If your answers for these questions are yes then simple_ssh is for you.
 
     ssh.result_by_cmd["whoami"] #=> {"192.168.143.153"=>"root"}
 
-* Dump yaml 
+* Dump yaml
 
     ssh.to_yaml #=> "--- \n192.168.143.153: \n  hostname: foreman-squeeze\n  whoami: root\n"
 
@@ -74,7 +74,8 @@ If your answers for these questions are yes then simple_ssh is for you.
 == AUTHORS
 
 Sandor Szücs, sandor.szuecs@fu-berlin.de
-  
+
 == LICENSE
 
 See LICENSE file.
+

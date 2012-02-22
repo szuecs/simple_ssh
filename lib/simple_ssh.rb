@@ -1,10 +1,10 @@
 require "net/ssh"
 
 module SimpleSsh
-  VERSION = '0.0.1'
-  
+  VERSION = '0.0.2'
+
   class SimpleSSH
-    
+
     class << self
       def configure(options={})
         ssh = SimpleSsh::SimpleSSH.new(options)
@@ -12,16 +12,18 @@ module SimpleSsh
         ssh
       end
     end # class methods end
-    
+
     def initialize(options={})
-       @hosts = options[:hosts] ||  []
-       @cmds  = options[:cmds] || []
-       @keys = options[:keys] || []
-       @user = options[:user] || ""
+      @hosts = options[:hosts] ||  []
+      @cmds  = options[:cmds] || []
+      @keys = options[:keys] || []
+      @user = options[:user] || ""
+      @result_by_host = {}
     end
-    
-    attr_accessor :keys, :user
-    
+
+    attr_accessor :user
+    attr_reader :result_by_host
+
     def hosts
       @hosts ||= []
     end
@@ -29,34 +31,33 @@ module SimpleSsh
     def cmds
       @cmds ||= []
     end
-    
+
+    def keys
+      @keys ||= []
+    end
+
     def execute
       if block_given?
         @cmds.clear
-        @result_by_cmd.clear
         yield(self)
       end
 
       results = {}
-      @hosts.each do |host|
-        results[host] = execute_cmds_on(user, host)
+      hosts.each do |host|
+        @result_by_host[host] = execute_cmds_on(@user, host)
       end
-      @result_by_host = results
+      result_by_host
     end
-    
-    attr_reader :result_by_host
-    
+
     def result_by_cmd
-      return @result_by_cmd if defined? @result_by_cmd and not @result_by_cmd.empty?
-      
-      @result_by_cmd = {}
-      @result_by_host.each do |host, cmd_dict|
+      result = {}
+      result_by_host.each do |host, cmd_dict|
         cmd_dict.each do |cmd, res|
-          @result_by_cmd[cmd] ||= {}
-          @result_by_cmd[cmd][host]= res 
+          result[cmd] ||= {}
+          result[cmd][host]= res
         end
       end
-      @result_by_cmd
+      result
     end
 
     def to_s
@@ -68,13 +69,13 @@ module SimpleSsh
         res
       end.join("")
     end
-    
+
     def to_yaml(by=:host)
       require 'yaml' unless defined? YAML
       s = send "result_by_#{by.to_s}".to_sym
       YAML.dump(s)
     end
-    
+
     def to_csv(sep=",")
       require "csv" unless defined? CSV
       csv = []
@@ -90,23 +91,34 @@ module SimpleSsh
 
       csv.join("\n")
     end
-    
+
     private
-    
+
     def execute_cmds_on(user, host)
       result = {}
+      except=nil
       begin
-        Net::SSH.start( host, user, :keys => keys) do |ssh|
+        Net::SSH.start( host, user, :keys => @keys) do |ssh|
           @cmds.each do |cmd|
             begin
-              result[cmd]= ssh.exec!(cmd).chomp
+              channel = ssh.open_channel do |channel|
+                channel.exec(cmd) do |ch, success|
+                  ch.on_data do |ch,data|
+                    result[cmd] = data.chomp
+                  end
+                  ch.on_extended_data do |ch, type, data|
+                    result[cmd] = data.chomp
+                  end
+                end
+              end
             rescue Exception => e
               $stderr.puts "Failed to execute #{cmd}"
             end
           end
         end
       rescue Exception => e
-        $stderr.puts "Could not open connection #{user}@#{host} using private key #{keys}"
+        $stderr.puts "Could not open connection #{user}@#{host} using private key #{@keys}"
+        raise
       end
       result
     end
